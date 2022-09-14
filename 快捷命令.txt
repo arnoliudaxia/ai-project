@@ -1,0 +1,25 @@
+python pacman.py
+python pacman.py -h
+
+--pacman GoWestAgent
+-p SearchAgent -a fn=tinyMazeSearch
+-p StayEastSearchAgent
+-p StayWestSearchAgent
+
+--frameTime 0.02
+
+--layout testMaze  #一维简单，包含一个豆豆
+--layout tinyMaze  #一个简单的小迷宫，包含一个豆豆
+-l mediumMaze
+-l bigMaze -z .5
+-l mediumDottedMaze -p StayEastSearchAgent #有很多豆豆，鼓励pacman去吃豆豆（cost相对小）
+mediumScaryMaze -p StayWestSearchAgent #有很多敌人，鼓励去西边
+
+
+python pacman.py -l bigMaze -z .5 -p SearchAgent -a fn=astar,heuristic=manhattanHeuristic 
+python pacman.py -l tinyCorners -p SearchAgent -a fn=bfs,prob=CornersProblem
+python pacman.py -l mediumCorners -p SearchAgent -a fn=bfs,prob=CornersProblem
+python pacman.py -l mediumCorners -p AStarCornersAgent -z 0.5
+python pacman.py -l testSearch -p AStarFoodSearchAgent
+python pacman.py -l trickySearch -p AStarFoodSearchAgent
+python pacman.py -l bigSearch -p ClosestDotSearchAgent -z .5 
