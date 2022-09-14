@@ -18,6 +18,7 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
+from searchAgents import PositionSearchProblem
 
 class SearchProblem:
     """
@@ -72,7 +73,7 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-def depthFirstSearch(problem):
+def depthFirstSearch(problem:PositionSearchProblem):
     """
     Search the deepest nodes in the search tree first.
 
@@ -86,8 +87,26 @@ def depthFirstSearch(problem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    print("Start's successors:", problem.getSuccessors(problem.getStartState()))# [((5, 4), 'South', 1), ((4, 5), 'West', 1)]
+    from game import Directions
+    s = Directions.SOUTH
+    w = Directions.WEST
+    return  [s, s, w, s, w, w, s, w]
+
+    startState=problem.getStartState()
+    stack=util.Stack()
+    stack.push([startState])
+    while not stack.isEmpty():
+        leaf=stack.pop()
+        children=problem.getSuccessors()
+    return []
+
+
+
+
+    # util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
