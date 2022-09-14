@@ -18,7 +18,7 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
-from searchAgents import PositionSearchProblem
+import search
 
 class SearchProblem:
     """
@@ -28,9 +28,9 @@ class SearchProblem:
     You do not need to change anything in this class, ever.
     """
 
-    def getStartState(self):
+    def getStartState(self)->[int,int]:
         """
-        Returns the start state for the search problem.
+        返回[int,int]
         """
         util.raiseNotDefined()
 
@@ -38,18 +38,16 @@ class SearchProblem:
         """
           state: Search state
 
-        Returns True if and only if the state is a valid goal state.
+        给一个二元数组，返回bool
         """
         util.raiseNotDefined()
 
-    def getSuccessors(self, state):
+    def getSuccessors(self, state)->[(int,int),str,int]:
         """
           state: Search state
 
-        For a given state, this should return a list of triples, (successor,
-        action, stepCost), where 'successor' is a successor to the current
-        state, 'action' is the action required to get there, and 'stepCost' is
-        the incremental cost of expanding to that successor.
+        给state，返回[(successor state,action, stepCost),...]
+        action例如'South'
         """
         util.raiseNotDefined()
 
@@ -73,50 +71,63 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-def depthFirstSearch(problem:PositionSearchProblem):
-    """
-    Search the deepest nodes in the search tree first.
+class Node:
+    def __init__(self, state, path=None, priority=0):
+        if path is None:
+            path = []
+        self.state = state
+        self.path = path
+        self.priority = priority
 
-    Your search algorithm needs to return a list of actions that reaches the
-    goal. Make sure to implement a graph search algorithm.
-
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
-
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-    """
-
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))# [((5, 4), 'South', 1), ((4, 5), 'West', 1)]
-    from game import Directions
-    s = Directions.SOUTH
-    w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
-
-    startState=problem.getStartState()
-    stack=util.Stack()
-    stack.push([startState])
-    while not stack.isEmpty():
-        leaf=stack.pop()
-        children=problem.getSuccessors()
-    return []
 
 
 
 
     # util.raiseNotDefined()
 
+def generalGraphSearch(problem:search.SearchProblem, strategy:str):
+    # 如果已经到终点就不用走了
+    if problem.isGoalState(problem.getStartState()):
+        return []
+    #region 根据算法选择不同的数据结构
+    frige=None
+    if strategy=='dfs':
+        frige=util.Stack()
+    if strategy=='bfs':
+        frige=util.Queue()
+    if strategy=='ucs':
+        frige=util.PriorityQueue()
+    #endregion
+    startState=problem.getStartState()
+
+    frige.push(Node(startState),0)
+    visited = []
+    while not frige.isEmpty():
+        leaf=frige.pop()
+        # print("走到了",leaf.state)
+        if leaf.state in visited:
+            continue
+        visited.append(leaf.state)
+        if problem.isGoalState(leaf.state):
+            return leaf.path
+        for child in problem.getSuccessors(leaf.state):
+            # (5, 4), 'South', 1
+            if child[0] in visited:
+                continue
+            if strategy == 'ucs':
+                frige.push(Node(child[0], leaf.path + [child[1]], leaf.priority + child[2]), leaf.priority + child[2])
+            else:
+                frige.push(Node(child[0],leaf.path+[child[1]]))
+    return []
+
+def depthFirstSearch(problem):
+    return generalGraphSearch(problem,'dfs')
+
 def breadthFirstSearch(problem):
-    """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return generalGraphSearch(problem,'bfs')
 
 def uniformCostSearch(problem):
-    """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return generalGraphSearch(problem,'ucs')
 
 def nullHeuristic(state, problem=None):
     """
