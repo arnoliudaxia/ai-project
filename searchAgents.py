@@ -33,6 +33,8 @@ description for details.
 
 Good luck and happy searching!
 """
+import itertools
+from random import Random
 
 from game import Directions
 from game import Agent
@@ -265,6 +267,9 @@ def manhattanHeuristic(position, problem, info={}):
     xy2 = problem.goal
     return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
 
+def manhattan(p1,p2)->int:
+    badluck=1.45
+    return badluck*(abs(p1[0]-p2[0])+abs(p1[1]-p2[1]))
 
 def euclideanHeuristic(position, problem, info={}):
     "The Euclidean distance heuristic for a PositionSearchProblem"
@@ -318,7 +323,7 @@ class CornersProblem(search.SearchProblem):
         # 是否四个角落都去过了
         return state[1][3]==state[1][2]==state[1][1]==state[1][0]==1
 
-    def getSuccessors(self, state: [(int, int), [int,int,int,int]]):
+    def getSuccessors(self, state: [(int, int), (int,int,int,int)]):
         """
         Returns successor states, the actions they require, and a cost of 1.
 
@@ -365,7 +370,7 @@ class CornersProblem(search.SearchProblem):
         return len(actions)
 
 
-def cornersHeuristic(state, problem):
+def cornersHeuristic(state: [(int, int), (int,int,int,int)], problem):
     """
     A heuristic for the CornersProblem that you defined.
 
@@ -378,11 +383,31 @@ def cornersHeuristic(state, problem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
+    # return 0
     corners = problem.corners  # These are the corner coordinates
     walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
 
-    "*** YOUR CODE HERE ***"
-    return 0  # Default to trivial solution
+
+    cornersNotVisited=[]
+    for i in range(4):
+        if state[1][i]==0:
+            cornersNotVisited.append(corners[i])
+
+    if len(cornersNotVisited)==0:
+        return 0
+
+    estimate=999999
+    for path in itertools.permutations(cornersNotVisited):
+        distance=0
+        nowPosition=state[0]
+        for target in path:
+            distance+=manhattan(target,nowPosition)
+            nowPosition=target
+        estimate=min(estimate,distance)
+
+    minToCorner=min([manhattan(state[0],corner) for corner in cornersNotVisited])
+    return estimate+minToCorner
+
 
 
 class AStarCornersAgent(SearchAgent):
