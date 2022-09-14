@@ -72,12 +72,12 @@ def tinyMazeSearch(problem):
     return  [s, s, w, s, w, w, s, w]
 
 class Node:
-    def __init__(self, state, path=None, priority=0):
+    def __init__(self, state, path=None, cost=0):
         if path is None:
             path = []
         self.state = state
         self.path = path
-        self.priority = priority
+        self.cost = cost
 
 
 
@@ -85,23 +85,25 @@ class Node:
 
     # util.raiseNotDefined()
 
-def generalGraphSearch(problem:search.SearchProblem, strategy:str):
+def generalGraphSearch(problem:search.SearchProblem, strategy:str,heuristic=lambda x,y:0):
     # 如果已经到终点就不用走了
     if problem.isGoalState(problem.getStartState()):
         return []
     #region 根据算法选择不同的数据结构
-    frige=None
-    if strategy=='dfs':
-        frige=util.Stack()
-    if strategy=='bfs':
-        frige=util.Queue()
-    if strategy=='ucs':
-        frige=util.PriorityQueue()
+    dataStructure={
+        "dfs":util.Stack,
+        "bfs":util.Queue,
+        "ucs":util.PriorityQueue,
+        "astar":util.PriorityQueue,
+        "greedy":util.PriorityQueue,
+    }
+    frige=dataStructure[strategy]()
     #endregion
+    #region 初始化
     startState=problem.getStartState()
-
-    frige.push(Node(startState),0)
+    frige.push(Node(startState),0+heuristic(startState,problem))
     visited = []
+    #endregion
     while not frige.isEmpty():
         leaf=frige.pop()
         # print("走到了",leaf.state)
@@ -114,8 +116,9 @@ def generalGraphSearch(problem:search.SearchProblem, strategy:str):
             # (5, 4), 'South', 1
             if child[0] in visited:
                 continue
-            if strategy == 'ucs':
-                frige.push(Node(child[0], leaf.path + [child[1]], leaf.priority + child[2]), leaf.priority + child[2])
+            if strategy == 'ucs' or strategy == 'astar' or strategy == 'greedy':
+                frige.push(Node(child[0], leaf.path + [child[1]], leaf.cost+child[2]),
+                           (strategy == 'ucs' or strategy == 'astar')*(leaf.cost+child[2])+heuristic(child[0],problem))
             else:
                 frige.push(Node(child[0],leaf.path+[child[1]]))
     return []
@@ -138,10 +141,10 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return generalGraphSearch(problem,'astar',heuristic)
 
-
+def greedySearch(problem, heuristic=nullHeuristic):
+    return generalGraphSearch(problem,'greedy',heuristic)
 # Abbreviations
 bfs = breadthFirstSearch
 dfs = depthFirstSearch
