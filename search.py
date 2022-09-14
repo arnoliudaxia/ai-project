@@ -101,16 +101,22 @@ def generalGraphSearch(problem:search.SearchProblem, strategy:str,heuristic=lamb
     #endregion
     #region 初始化
     startState=problem.getStartState()
-    frige.push(Node(startState),0+heuristic(startState,problem))
+    if not isinstance(frige,util.PriorityQueue):
+        frige.push(Node(startState))
+    else:
+        frige.push(Node(startState),0+heuristic(startState,problem))
     visited = []
     #endregion
     while not frige.isEmpty():
         leaf=frige.pop()
         # print("走到了",leaf.state)
+
         if leaf.state in visited:
             continue
         visited.append(leaf.state)
         if problem.isGoalState(leaf.state):
+            print("路线为",leaf.path)
+            print("步数为",len(leaf.path))
             return leaf.path
         for child in problem.getSuccessors(leaf.state):
             # (5, 4), 'South', 1

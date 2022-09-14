@@ -15,6 +15,8 @@ python pacman.py -h
 -l mediumDottedMaze -p StayEastSearchAgent #有很多豆豆，鼓励pacman去吃豆豆（cost相对小）
 mediumScaryMaze -p StayWestSearchAgent #有很多敌人，鼓励去西边
 openMaze #基本上都是空的,中间有一条障碍
+####corner mazes#####
+四个角都有豆豆，都需要吃掉
 
 
 python pacman.py -l openMaze -z .5 -p SearchAgent -a fn=astar,heuristic=manhattanHeuristic --frameTime 0
