@@ -403,7 +403,7 @@ def cornersHeuristic(state: [(int, int), (int,int,int,int)], problem):
         estimate=min(estimate,distance)
 
     minToCorner=min([manhattan(state[0],corner) for corner in cornersNotVisited])
-    return estimate+minToCorner
+    return estimate
 
 
 

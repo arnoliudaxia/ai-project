@@ -114,8 +114,8 @@ def generalGraphSearch(problem:search.SearchProblem, strategy:str,heuristic=lamb
             continue
         visited.append(leaf.state)
         if problem.isGoalState(leaf.state):
-            print("path is",leaf.path)
-            print("step is ",len(leaf.path))
+            # print("path is",leaf.path)
+            # print("step is ",len(leaf.path))
             return leaf.path
         for child in problem.getSuccessors(leaf.state):
             # (5, 4), 'South', 1
