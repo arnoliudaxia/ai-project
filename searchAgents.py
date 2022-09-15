@@ -36,7 +36,7 @@ Good luck and happy searching!
 import itertools
 from random import Random
 
-from game import Directions
+from game import Directions, Grid
 from game import Agent
 from game import Actions
 import util
@@ -268,7 +268,7 @@ def manhattanHeuristic(position, problem, info={}):
     return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
 
 def manhattan(p1,p2)->int:
-    badluck=1.45
+    badluck=1
     return badluck*(abs(p1[0]-p2[0])+abs(p1[1]-p2[1]))
 
 def euclideanHeuristic(position, problem, info={}):
@@ -312,7 +312,7 @@ class CornersProblem(search.SearchProblem):
         Returns the start state (in your state space, not the full Pacman state
         space)
 
-        return：((x,y),(cornerLU,cornerLD,cornerRU,cornerRD))
+        return:((x,y),(cornerLU,cornerLD,cornerRU,cornerRD))
         """
         return self.startState
 
@@ -320,7 +320,6 @@ class CornersProblem(search.SearchProblem):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        # 是否四个角落都去过了
         return state[1][3]==state[1][2]==state[1][1]==state[1][0]==1
 
     def getSuccessors(self, state: [(int, int), (int,int,int,int)]):
@@ -343,9 +342,7 @@ class CornersProblem(search.SearchProblem):
             nextx, nexty = int(x + dx), int(y + dy)
             if not self.walls[nextx][nexty]:
                 nextState = ((nextx, nexty),state[1])
-                # 假定每走一步的cost固定为1
                 if nextState[0] in self.corners:
-                    # 如果走到了角落，就把角落的状态置为1
                     cornerIndex = self.corners.index(nextState[0])
                     temp=list(nextState[1])
                     temp[cornerIndex]=1
@@ -478,7 +475,7 @@ class AStarFoodSearchAgent(SearchAgent):
         self.searchType = FoodSearchProblem
 
 
-def foodHeuristic(state, problem):
+def foodHeuristic(state:((int,int),Grid), problem):
     """
     Your heuristic for the FoodSearchProblem goes here.
 
@@ -488,7 +485,7 @@ def foodHeuristic(state, problem):
 
     If using A* ever finds a solution that is worse uniform cost search finds,
     your heuristic is *not* consistent, and probably not admissible!  On the
-    other hand, inadmissible or inconsistent heuristics may find optimal
+    other hand, inadmissible or  inconsistent heuristics may find optimal
     solutions, so be careful.
 
     The state is a tuple ( pacmanPosition, foodGrid ) where foodGrid is a Grid
@@ -507,8 +504,60 @@ def foodHeuristic(state, problem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
+
+
+    foodToeat=foodGrid.asList()
+    if len(foodToeat)==0:
+        return 0
+    # foodDs=0
+    # while len(foodToeat)>0:
+    #     food=foodToeat.pop()
+    #     myds=9999
+    #     for otherfood in foodToeat:
+    #         myds=min(myds,manhattan(food,otherfood))
+    #     foodDs+=[myds,0][myds==9999]
+    # print(foodDs)
+    # # estimate=999999
+    # # for path in itertools.permutations(foodToeat):
+    # #     distance=0
+    # #     nowPosition=state[0]
+    # #     for target in path:
+    # #         distance+=manhattan(target,nowPosition)
+    # #         if distance>estimate:
+    # #             break
+    # #         nowPosition=target
+    # #     estimate=min(estimate,distance)
+    #
+    # #
+    # minToCorner=min([manhattan(state[0],corner) for corner in foodToeat])
+    # #
+    # return sum(foodDs)+minToCorner
+
+    maxX = 0
+    maxY = 0
+    minX = 0
+    minY = 0
+
+    for item in foodToeat:
+        foodX, foodY = item
+        xDistance = foodX - position[0]
+        yDistance = foodY - position[1]
+        maxX=max(maxX,xDistance)
+        minX=min(minX,xDistance)
+        maxY=max(maxY,yDistance)
+        minY=min(minY,yDistance)
+        # print(maxX,minX,maxY,minY)
+    assert maxX - minX + maxY - minY>0
+    return int((maxX - minX + maxY - minY))
+
+    # Xrange=0
+    # Yrange=0
+    # for food in foodToeat:
+    #     for fd in foodToeat:
+    #         Xrange=max(Xrange,abs(food[0]-fd[0]))
+    #         Yrange=max(Yrange,abs(food[1]-fd[1]))
+    # print(Xrange,Yrange)
+    # return Xrange+Yrange
 
 
 class ClosestDotSearchAgent(SearchAgent):
@@ -540,8 +589,7 @@ class ClosestDotSearchAgent(SearchAgent):
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return search.bfs(problem)
 
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -577,8 +625,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         """
         x, y = state
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.food[x][y]
 
 
 class ApproximateSearchAgent(Agent):
@@ -586,6 +633,7 @@ class ApproximateSearchAgent(Agent):
 
     def registerInitialState(self, state):
         "This method is called before any moves are made."
+        self.actions=search.aStarSearch(CornersProblem(state),cornersHeuristic)
         "*** YOUR CODE HERE ***"
 
     def getAction(self, state):
@@ -594,8 +642,7 @@ class ApproximateSearchAgent(Agent):
         The Agent will receive a GameState and must return an action from 
         Directions.{North, South, East, West, Stop}
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.actions.pop(0)
 
 
 def mazeDistance(point1, point2, gameState):

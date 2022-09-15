@@ -19,6 +19,8 @@ Pacman agents (in searchAgents.py).
 
 import util
 import search
+import searchAgents
+
 
 class SearchProblem:
     """
@@ -30,7 +32,7 @@ class SearchProblem:
 
     def getStartState(self)->[int,int]:
         """
-        返回[int,int]
+        return [int,int]
         """
         util.raiseNotDefined()
 
@@ -38,7 +40,6 @@ class SearchProblem:
         """
           state: Search state
 
-        给一个二元数组，返回bool
         """
         util.raiseNotDefined()
 
@@ -46,8 +47,8 @@ class SearchProblem:
         """
           state: Search state
 
-        给state，返回[(successor state,action, stepCost),...]
-        action例如'South'
+        give state, return [(successor state,action, stepCost),...]
+        action as 'South'
         """
         util.raiseNotDefined()
 
@@ -86,10 +87,9 @@ class Node:
     # util.raiseNotDefined()
 
 def generalGraphSearch(problem:search.SearchProblem, strategy:str,heuristic=lambda x,y:0):
-    # 如果已经到终点就不用走了
     if problem.isGoalState(problem.getStartState()):
         return []
-    #region 根据算法选择不同的数据结构
+    #region choose strategy
     dataStructure={
         "dfs":util.Stack,
         "bfs":util.Queue,
@@ -99,7 +99,7 @@ def generalGraphSearch(problem:search.SearchProblem, strategy:str,heuristic=lamb
     }
     frige=dataStructure[strategy]()
     #endregion
-    #region 初始化
+    #region init
     startState=problem.getStartState()
     if not isinstance(frige,util.PriorityQueue):
         frige.push(Node(startState))
@@ -109,14 +109,13 @@ def generalGraphSearch(problem:search.SearchProblem, strategy:str,heuristic=lamb
     #endregion
     while not frige.isEmpty():
         leaf=frige.pop()
-        # print("走到了",leaf.state)
 
         if leaf.state in visited:
             continue
         visited.append(leaf.state)
         if problem.isGoalState(leaf.state):
-            print("路线为",leaf.path)
-            print("步数为",len(leaf.path))
+            print("path is",leaf.path)
+            print("step is ",len(leaf.path))
             return leaf.path
         for child in problem.getSuccessors(leaf.state):
             # (5, 4), 'South', 1
