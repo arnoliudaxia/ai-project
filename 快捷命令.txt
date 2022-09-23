@@ -18,9 +18,11 @@ openMaze #基本上都是空的,中间有一条障碍
 ####corner mazes#####
 四个角都有豆豆，都需要吃掉
 
+python pacman.py -l mediumCorners -p AStarCornersAgent -z .5
+python pacman.py -l trickySearch -p AStarFoodSearchAgent
 
-
-python pacman.py -l bigSearch -p ClosestDotSearchAgent -z .5 
 python pacman.py -l bigSearch -p AStarFoodSearchAgent
 
 python autograder.py -q q7
+
+python pacman.py -l bigSearch -p ApproximateSearchAgent -z .5 --frameTime 0.1
